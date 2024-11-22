@@ -3,7 +3,8 @@ import "./globals.css";
 import Header from "./components/Header/Header.jsx";
 import AuthContextProvider from "@/context/AuthContext/AuthContextProvider.jsx";
 import CategoryContextProvider from "@/context/CategoryContext/CategoryContextProvider.jsx";
-
+import "react-toastify/dist/ReactToastify.css";
+import { ToastContainer } from "react-toastify";
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
   variable: "--font-geist-sans",
@@ -28,6 +29,7 @@ export default function RootLayout({ children }) {
       >
         <AuthContextProvider>
           <CategoryContextProvider>
+            <ToastContainer />
             <Header />
             {children}
           </CategoryContextProvider>

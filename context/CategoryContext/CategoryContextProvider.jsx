@@ -1,6 +1,11 @@
 "use client";
 import React, { useState } from "react";
 import CategoryContext from "./CategoryContext.jsx";
+import {
+  createCategoryDoc,
+  uploadCategoryIcon,
+} from "@/lib/category/category.js";
+import generateSlug from "@/lib/generateSlug/generateSlug.js";
 
 function CategoryContextProvider({ children }) {
   //get category data
@@ -9,13 +14,15 @@ function CategoryContextProvider({ children }) {
   const [isLoading, setIsLoading] = useState(false);
   // error state
   const [error, setError] = useState(null);
+  // message state
+  const [message, setMessage] = useState(null);
+  // category icons
   const [image, setImage] = useState(null);
-  console.log(category);
   //handle category
   const handleCategory = (e) => {
     e.preventDefault();
-    setCategory((prevstate) => ({
-      ...prevstate,
+    setCategory((prevState) => ({
+      ...prevState,
       [e.target.name]: e.target.value,
     }));
   };
@@ -24,10 +31,32 @@ function CategoryContextProvider({ children }) {
     setIsLoading(true);
     setError(null);
     try {
+      if (!category?.name) {
+        setError("Category name is required!");
+      } else {
+        setError(null);
+      }
+
+      if (image) {
+        const icon = await uploadCategoryIcon(image.name, image);
+        const cat = await createCategoryDoc({
+          name: category.name,
+          slug: category?.name ? generateSlug(category?.name) : "",
+          icon: icon,
+        });
+      } else {
+        const cat = await createCategoryDoc({
+          name: category.name,
+          slug: category?.name ? generateSlug(category?.name) : "",
+          icon: null,
+        });
+      }
     } catch (error) {
       setError(error.message);
     }
     setIsLoading(false);
+    category.name = "";
+    setImage(null);
   };
 
   const handleCategoryImage = (e) => {
@@ -45,6 +74,7 @@ function CategoryContextProvider({ children }) {
           handleCategory,
           handleCategoryCreate,
           handleCategoryImage,
+          message,
         }}
       >
         {children}

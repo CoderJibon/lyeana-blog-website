@@ -1,9 +1,10 @@
 "use client";
 import Image from "next/image.js";
-import React from "react";
+import React, { useEffect } from "react";
 import google from "@/public/google.png";
 import { useAuth } from "@/context/CustomHook.jsx";
 import Link from "next/link.js";
+import { toast } from "react-toastify";
 
 function LoginButton() {
   const {
@@ -12,10 +13,38 @@ function LoginButton() {
     error,
     handleSingInWithGoogle,
     handleLogOutWithGoogle,
+    message,
   } = useAuth();
   if (isLoading) return <h1>Loading...</h1>;
+  console.log(message);
+  useEffect(() => {
+    if (message) {
+      toast.success(message, {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: false,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+    }
+    if (error) {
+      toast.error(error, {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: false,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+    }
+  }, [message, error]);
+
   if (user) {
-    console.log(user);
     return (
       <>
         <div className="flex gap-2">

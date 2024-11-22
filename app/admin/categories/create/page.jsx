@@ -1,6 +1,8 @@
 "use client";
 
 import { useCategory } from "@/context/CustomHook.jsx";
+import { useEffect } from "react";
+import { toast } from "react-toastify";
 
 export default function createCategory() {
   const {
@@ -11,16 +13,44 @@ export default function createCategory() {
     handleCategory,
     handleCategoryCreate,
     handleCategoryImage,
+    message,
   } = useCategory();
+
+  useEffect(() => {
+    if (message) {
+      toast.success(message, {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: false,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+    }
+    if (error) {
+      toast.error(error, {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: false,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+    }
+  }, [message, error]);
 
   return (
     <main className="w-full p-6 flex flex-col gap-3">
       <div className="flex gap-5 items-center">
-        <div className="flex">
+        {/* <div className="flex">
           <h3 className="text-white bg-orange-500 px-4 py-2 rounded-full text-xs font-bold">
             Update
           </h3>
-        </div>
+        </div> */}
         <div className="flex">
           <h3 className="text-white bg-green-500 px-4 py-2 rounded-full text-xs font-bold">
             Create
@@ -63,20 +93,15 @@ export default function createCategory() {
               onChange={handleCategoryImage}
             />
           </div>
-          {error && <p className="text-red-500 text-sm">{error}</p>}
 
           <button
+            disabled={isLoading}
             type="submit"
             className="bg-blue-500 rounded-full px-4 py-2 text-white"
           >
-            Create
+            {isLoading ? "Loading..." : "Create"}
           </button>
-
-          {/* <button className="bg-red-500 rounded-full px-4 py-2 text-white">
-            Create
-          </button> */}
-
-          {/* <h3 className="text-green-500 font-bold text-center">Successfully</h3> */}
+          {error && <p className="text-red-500 text-sm">{error}</p>}
         </form>
       </section>
     </main>

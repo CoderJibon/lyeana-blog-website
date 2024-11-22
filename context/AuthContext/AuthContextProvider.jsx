@@ -8,6 +8,7 @@ import {
   signOut,
 } from "firebase/auth";
 import { auth } from "@/firebase/firebaseApp.js";
+import { createUserDoc } from "@/lib/users/users.js";
 
 function AuthContextProvider({ children }) {
   //user state
@@ -16,27 +17,38 @@ function AuthContextProvider({ children }) {
   const [isLoading, setIsLoading] = useState(false);
   // error state
   const [error, setError] = useState(null);
+  // message state
+  const [message, setMessage] = useState(null);
 
   //get user data
   useEffect(() => {
-    setIsLoading(true);
-    const loginData = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
-        setUser(user);
-        setIsLoading(false);
+        setUser(user); // Set user data
       } else {
-        setUser(null);
-        setIsLoading(false);
+        setUser(null); // No user is signed in
       }
+      setIsLoading(false); // Stop loading once the state is determined
     });
-    return () => loginData();
+
+    // Cleanup subscription on unmount
+    return () => unsubscribe();
   }, []);
 
   //sing in with google
   const handleSingInWithGoogle = async () => {
     setIsLoading(true);
     try {
-      await signInWithPopup(auth, new GoogleAuthProvider());
+      const loginUser = await signInWithPopup(auth, new GoogleAuthProvider());
+      await createUserDoc(
+        {
+          id: loginUser.user.uid,
+          name: loginUser.user.displayName,
+          email: loginUser.user.email,
+          photoURL: loginUser.user.photoURL,
+        },
+        loginUser.user.uid
+      );
     } catch (error) {
       setError(error.message);
     }
@@ -61,6 +73,7 @@ function AuthContextProvider({ children }) {
           error,
           handleSingInWithGoogle,
           handleLogOutWithGoogle,
+          message,
         }}
       >
         {children}
