@@ -5,6 +5,7 @@ import {
   doc,
   getDoc,
   getDocs,
+  onSnapshot,
   onSnapshotsInSync,
   orderBy,
   query,
@@ -26,23 +27,27 @@ export const create = async (collectionName, data, customID) => {
 
 // get all documents
 export const find = async (collectionName) => {
-  const data = await getDocs(collection(database, collectionName));
+  const data = await getDocs(collection(database, "category"));
   console.log(data);
   let db = [];
-  data.forEach((item) => db.push({ ...item.data(), id: item.id }));
+  data.forEach((item) => {
+    console.log(item);
+    db.push({ ...item.data(), id: item.id });
+  });
 
   return db;
 };
 
 //get all documents by Real time data
 export const findRT = async (collectionName, setData) => {
-  onSnapshotsInSync(
+  onSnapshot(
     query(collection(database, collectionName), orderBy("created_at", "asc")),
-    (snapshot) => {
-      const data = [];
-      snapshot.does.forEach((doc) =>
-        data.push({ ...item.data(), id: item.id })
-      );
+    (snapShot) => {
+      let data = [];
+      console.log(snapShot.docs);
+      snapShot.docs.forEach((cat) => {
+        data.push({ ...cat.data(), id: cat.id });
+      });
       setData(data);
     }
   );

@@ -1,8 +1,9 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import CategoryContext from "./CategoryContext.jsx";
 import {
   createCategoryDoc,
+  getCategoryDocs,
   uploadCategoryIcon,
 } from "@/lib/category/category.js";
 import generateSlug from "@/lib/generateSlug/generateSlug.js";
@@ -18,6 +19,8 @@ function CategoryContextProvider({ children }) {
   const [message, setMessage] = useState(null);
   // category icons
   const [image, setImage] = useState(null);
+  // get all categories
+  const [allCat, setAllCat] = useState([]);
   //handle category
   const handleCategory = (e) => {
     e.preventDefault();
@@ -44,12 +47,14 @@ function CategoryContextProvider({ children }) {
           slug: category?.name ? generateSlug(category?.name) : "",
           icon: icon,
         });
+        setMessage("category created");
       } else {
         const cat = await createCategoryDoc({
           name: category.name,
           slug: category?.name ? generateSlug(category?.name) : "",
           icon: null,
         });
+        setMessage("category created");
       }
     } catch (error) {
       setError(error.message);
@@ -62,6 +67,12 @@ function CategoryContextProvider({ children }) {
   const handleCategoryImage = (e) => {
     setImage(e.target.files[0]);
   };
+
+  useEffect(() => {
+    getCategoryDocs(setAllCat);
+  }, []);
+
+  console.log(allCat);
 
   return (
     <>
